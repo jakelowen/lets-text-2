@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
@@ -14,27 +15,30 @@ storiesOf('Verification Message', module)
     <VerificationMessage
       submitToConnector={action('Triggered Mutation Mock')}
       error="This is an error message"
+      called
     />
   ))
   .add('Success', () => (
     <VerificationMessage
       submitToConnector={action('Triggered Mutation Mock')}
       data={{
-        verify: {
+        confirmLogin: {
           success: true,
           message: 'This message is passed directly though from server',
         },
       }}
+      called
     />
   ))
   .add('Load then Fail', () => (
     <VerificationMessage
       submitToConnector={action('Triggered Mutation Mock')}
       data={{
-        verify: {
+        confirmLogin: {
           success: false,
           message: 'This message is passed directly though from server',
         },
       }}
+      called
     />
   ));

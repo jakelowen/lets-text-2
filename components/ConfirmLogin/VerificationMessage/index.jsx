@@ -26,14 +26,14 @@ export default class VerificationMessage extends React.Component {
     // return <p>stalling...</p>;
 
     return (
-      <>
+      <React.Fragment>
         <div className="measure center black-80  sans-serif">
           <h1 className="f2 tc">
             {data && data.confirmLogin.success ? 'Success!' : 'Dang!'}
           </h1>
-          <p className="f5 lh-copy">{data && data.confirmLogin.message}</p>
+          <p className="f5 lh-copy tc">{data && data.confirmLogin.message}</p>
         </div>
-      </>
+      </React.Fragment>
     );
   }
 }
