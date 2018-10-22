@@ -1,11 +1,11 @@
 const { randomBytes } = require('crypto');
 const { promisify } = require('util');
 
-const transport = require('../../email/connectors/transport');
-const { subject, html, text } = require('../../email/templates/magicLogin');
-const generateSecurityCode = require('../../utils/securityCode');
+const transport = require('../../../email/connectors/transport');
+const { subject, html, text } = require('../../../email/templates/magicLogin');
+const generateSecurityCode = require('../../../utils/securityCode');
 
-const requestLogin = async (parent, args, ctx) => {
+const register = async (parent, args, ctx) => {
   /*  Response target
         type ReguestLoginResponse {
             code: String!
@@ -15,26 +15,23 @@ const requestLogin = async (parent, args, ctx) => {
           }
         */
 
-  // 1. Check if this is a real user
-  const user = await ctx.db.query.user({ where: { email: args.email } });
+  console.log('!!! calling registration');
+  // 1. Create user with provided arguments
+  const [user] = await ctx
+    .db('users')
+    .insert({ name: args.name, email: args.email })
+    .returning('*');
 
-  if (!user) {
-    return {
-      code: 'noUser',
-      success: false,
-      message: `No such user found for email ${args.email}`,
-      securityCode: null,
-    };
-  }
+  console.log('DB USER create', user);
 
   // 2. Set a reset token and expiry on that user
   const randomBytesPromiseified = promisify(randomBytes);
   const loginToken = (await randomBytesPromiseified(20)).toString('hex');
-  const loginTokenExpiry = Date.now() + 3600000; // 1 hour from now
-  await ctx.db.mutation.updateUser({
-    where: { email: args.email },
-    data: { loginToken, loginTokenExpiry },
-  });
+
+  await ctx
+    .db('users')
+    .update({ loginToken })
+    .where({ email: args.email });
 
   const securityCode = generateSecurityCode();
 
@@ -61,4 +58,4 @@ const requestLogin = async (parent, args, ctx) => {
   };
 };
 
-module.exports = requestLogin;
+module.exports = register;

@@ -18,13 +18,6 @@ const PleaseSignIn = props => (
 
       startPolling(3000);
       return <LogInConnector />;
-
-      // if (!data.me) {
-      //   startPolling(3000);
-
-      //   return <LogInConnector />;
-      // }
-      // return props.children;
     }}
   </Query>
 );

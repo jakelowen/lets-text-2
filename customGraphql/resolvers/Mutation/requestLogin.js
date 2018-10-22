@@ -1,11 +1,11 @@
 const { randomBytes } = require('crypto');
 const { promisify } = require('util');
 
-const transport = require('../../email/connectors/transport');
-const { subject, html, text } = require('../../email/templates/magicLogin');
-const generateSecurityCode = require('../../utils/securityCode');
+const transport = require('../../../email/connectors/transport');
+const { subject, html, text } = require('../../../email/templates/magicLogin');
+const generateSecurityCode = require('../../../utils/securityCode');
 
-const register = async (parent, args, ctx) => {
+const requestLogin = async (parent, args, ctx) => {
   /*  Response target
         type ReguestLoginResponse {
             code: String!
@@ -15,23 +15,32 @@ const register = async (parent, args, ctx) => {
           }
         */
 
-  console.log('!!! calling registration');
-  // 1. Create user with provided arguments
-  const user = await ctx.db.mutation.createUser({
-    data: {
-      name: args.name,
-      email: args.email,
-    },
-  });
+  // 1. Check if this is a real user
+  const user = await ctx
+    .db('users')
+    .where({ email: args.email })
+    .first();
+
+  if (!user) {
+    return {
+      code: 'noUser',
+      success: false,
+      message: `No such user found for email ${args.email}`,
+      securityCode: null,
+    };
+  }
 
   // 2. Set a reset token and expiry on that user
   const randomBytesPromiseified = promisify(randomBytes);
   const loginToken = (await randomBytesPromiseified(20)).toString('hex');
-  const loginTokenExpiry = Date.now() + 3600000; // 1 hour from now
-  await ctx.db.mutation.updateUser({
-    where: { email: args.email },
-    data: { loginToken, loginTokenExpiry },
-  });
+
+  await ctx
+    .db('users')
+    .update({
+      loginToken,
+      loginTokenExpiry: ctx.db.raw(`now() + '24 HOUR'::INTERVAL`),
+    })
+    .where({ email: args.email });
 
   const securityCode = generateSecurityCode();
 
@@ -58,4 +67,4 @@ const register = async (parent, args, ctx) => {
   };
 };
 
-module.exports = register;
+module.exports = requestLogin;

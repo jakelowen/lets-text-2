@@ -55,8 +55,8 @@ class Login extends React.Component {
           />
         ) : (
           <Mutation mutation={LOGIN_MUTATION}>
-            const {email} = this.state
             {(requestLogin, { data, loading, error, called }) => {
+              // const { email } = this.state;
               if (loading) return <Loading />;
               if (called && data.requestLogin.code === 'noUser') {
                 return (

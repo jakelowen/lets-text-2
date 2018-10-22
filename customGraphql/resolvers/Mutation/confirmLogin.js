@@ -10,15 +10,14 @@ const confirmLogin = async (parent, args, ctx) => {
         }
     */
 
-  // 1.. check if its a legit reset token
-  // 2. Check if its expired
-  const [user] = await ctx.db.query.users({
-    where: {
-      loginToken: args.token,
-      loginTokenExpiry_gte: Date.now() - 3600000,
-    },
-  });
-  console.log('!! do we have a user?', user);
+  const user = await ctx
+    .db('users')
+    .where('loginToken', '=', args.token)
+    .andWhere('loginTokenExpiry', '>', 'now()')
+    .first();
+
+  console.log(user, args);
+
   if (!user) {
     console.log('!!!!! NO USER');
     return {
@@ -29,19 +28,29 @@ const confirmLogin = async (parent, args, ctx) => {
     };
   }
 
-  console.log('on server side, in confirmlogin, user', user);
-
-  // 3. remove old resetToken fields
-  const updatedUser = await ctx.db.mutation.updateUser({
-    where: { email: user.email },
-    data: {
+  const [updatedUser] = await ctx
+    .db('users')
+    .update({
       loginToken: null,
       loginTokenExpiry: null,
-    },
-  });
+    })
+    .where({ email: user.email })
+    .returning('*');
 
   // 4. Generate JWT
-  const token = jwt.sign({ userId: updatedUser.id }, process.env.APP_SECRET);
+  const token = jwt.sign(
+    {
+      userId: updatedUser.id,
+      'https://hasura.io/jwt/claims': {
+        'x-hasura-allowed-roles': ['user'],
+        'x-hasura-default-role': 'user',
+        'x-hasura-user-id': updatedUser.id,
+        // 'x-hasura-org-id': '123',
+        // 'x-hasura-custom': 'custom-value',
+      },
+    },
+    process.env.APP_SECRET
+  );
 
   // 5. Set the JWT cookie
   ctx.response.cookie('token', token, {
