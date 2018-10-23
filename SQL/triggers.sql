@@ -30,3 +30,26 @@ CREATE TRIGGER set_effective_timestamp_on_messages
   BEFORE INSERT OR UPDATE ON messages
   FOR EACH ROW
   EXECUTE PROCEDURE set_effective_timestamp();
+
+--- CLOSE SESSIONS
+--- If new message is outbound, close all existing inbound sessions, attribute to user
+DROP FUNCTION close_session_on_outbound_message CASCADE;
+CREATE OR REPLACE FUNCTION close_session_on_outbound_message()
+  RETURNS trigger AS
+$BODY$
+BEGIN
+ IF NEW.direction = 'out' THEN
+ UPDATE messages set session_timestamp = new.created_at, user_id = new.user_id WHERE contact_id = new.contact_id and session_timestamp IS NULL;
+ new.session_timestamp = new.created_at;
+ END IF;
+ RETURN NEW;
+END;
+$BODY$
+LANGUAGE plpgsql
+;
+
+DROP TRIGGER IF EXISTS close_sessions_on_messages on messages;
+CREATE TRIGGER close_sessions_on_messages
+  BEFORE INSERT OR UPDATE ON messages
+  FOR EACH ROW
+  EXECUTE PROCEDURE close_session_on_outbound_message();
