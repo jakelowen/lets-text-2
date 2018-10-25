@@ -6,7 +6,7 @@ const Query = {
     }
 
     const [userFromDbQuery] = await ctx
-      .db('users')
+      .db('lt_user')
       .where({ id: ctx.request.userId });
     return userFromDbQuery;
   },

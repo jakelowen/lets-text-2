@@ -7,14 +7,14 @@ const { getRemoteSchema, makeHttpAndWsLink } = require('./utils/stitching');
 const knex = require('./knex');
 
 async function createServer() {
-  const { HASURA_GRAPHQL_ENGINE_URL, ACCESS_KEY } = process.env;
+  const { HASURA_GRAPHQL_ENGINE_URL, HASURA_ACCESS_KEY } = process.env;
   const HASURA_GRAPHQL_API_URL = `${HASURA_GRAPHQL_ENGINE_URL}/v1alpha1/graphql`;
 
   // this is a special link that has admin access to hasura for use in introspecting schema
   const linkOverRide = makeHttpAndWsLink(
     HASURA_GRAPHQL_API_URL,
-    ACCESS_KEY && {
-      'x-hasura-access-key': ACCESS_KEY,
+    HASURA_ACCESS_KEY && {
+      'x-hasura-access-key': HASURA_ACCESS_KEY,
     }
   );
 

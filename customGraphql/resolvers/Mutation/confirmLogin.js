@@ -11,9 +11,9 @@ const confirmLogin = async (parent, args, ctx) => {
     */
 
   const user = await ctx
-    .db('users')
-    .where('loginToken', '=', args.token)
-    .andWhere('loginTokenExpiry', '>', 'now()')
+    .db('lt_user')
+    .where('login_token', '=', args.token)
+    .andWhere('login_token_expiry', '>', 'now()')
     .first();
 
   console.log(user, args);
@@ -29,10 +29,10 @@ const confirmLogin = async (parent, args, ctx) => {
   }
 
   const [updatedUser] = await ctx
-    .db('users')
+    .db('lt_user')
     .update({
-      loginToken: null,
-      loginTokenExpiry: null,
+      login_token: null,
+      login_token_expiry: null,
     })
     .where({ email: user.email })
     .returning('*');
