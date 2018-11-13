@@ -18,9 +18,9 @@ const confirmLogin = async (parent, args, ctx) => {
     .first();
 
   // console.log(user, args);
-
+  // console.log('USER', user);
   if (!user) {
-    console.log('!!!!! NO USER');
+    // console.log('!!!!! NO USER');
     return {
       code: 'noUser',
       success: false,
@@ -63,10 +63,10 @@ const confirmLogin = async (parent, args, ctx) => {
     process.env.APP_SECRET
   );
 
-  console.log('JWT', token);
+  // console.log('JWT', token);
 
   // 5. Set the JWT cookie
-  ctx.response.cookie('token', token, {
+  ctx.res.cookie('token', token, {
     httpOnly: true,
     maxAge: 1000 * 60 * 60 * 24 * 365,
   });

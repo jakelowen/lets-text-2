@@ -1,8 +1,5 @@
 const { HttpLink } = require('apollo-link-http');
 const { ApolloLink } = require('apollo-link');
-const { WebSocketLink } = require('apollo-link-ws');
-const { SubscriptionClient } = require('subscriptions-transport-ws');
-const ws = require('ws');
 const {
   makeRemoteExecutableSchema,
   introspectSchema,
@@ -56,22 +53,12 @@ const makeHttpAndWsLink = (uri, headers) => {
     };
   });
 
-  // Create a WebSocket link:
   const wsLink = operation => {
     const context = operation.getContext();
-    const connectionParams = context.graphqlContext.connection.context || {};
-    return new WebSocketLink(
-      new SubscriptionClient(
-        uri,
-        {
-          reconnect: true,
-          connectionParams: {
-            headers: connectionParams,
-          },
-        },
-        ws
-      )
-    );
+    const {
+      graphqlContext: { secureWebsocketConnection },
+    } = context;
+    return secureWebsocketConnection.request(operation);
   };
 
   // chose the link to use based on operation
@@ -92,7 +79,6 @@ const makeHttpAndWsLink = (uri, headers) => {
 const getRemoteSchema = async (uri, headers, linkOverRide = null) => {
   const link = makeHttpAndWsLink(uri, headers);
   if (linkOverRide) {
-    // console.log('!!! remote schema', schema);
     return makeRemoteExecutableSchema({
       schema: await introspectSchema(linkOverRide),
       link,

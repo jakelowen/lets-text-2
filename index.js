@@ -24,6 +24,7 @@ app.prepare().then(async () => {
   // decode the JWT so we can get the user Id on each request
   expressServer.use((req, res, next) => {
     const { token } = req.cookies;
+    // console.log('TOKEN', token);
     if (token) {
       let userId;
       try {
@@ -60,7 +61,7 @@ app.prepare().then(async () => {
   // });
 
   expressServer.get('*', (req, res, next) => {
-    if (req.url === '/graphql' || req.url === '/playground') {
+    if (req.url === '/graphql') {
       return next();
     }
     return handle(req, res);
@@ -69,7 +70,13 @@ app.prepare().then(async () => {
   httpServer.listen(port, err => {
     if (err) throw err;
     console.log(`Listening on http://localhost:${port}`);
-    console.log(`GRAPHQL PATH: ${gqlserver.graphqlPath}`);
-    console.log(`GRAPHQL SUB PATH: ${gqlserver.subscriptionsPath}`);
+    console.log(
+      `🚀 Server ready at http://localhost:${port}${gqlserver.graphqlPath}`
+    );
+    console.log(
+      `🚀 Subscriptions ready at ws://localhost:${port}${
+        gqlserver.subscriptionsPath
+      }`
+    );
   });
 });
