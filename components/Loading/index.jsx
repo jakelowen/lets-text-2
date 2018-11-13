@@ -1,12 +1,24 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/pro-light-svg-icons';
+import styled from 'styled-components';
+
+const Styles = styled.div`
+  svg {
+    margin-right: ${props => props.theme.spacing[2]};
+  }
+
+  p {
+    display: inline-block;
+    font-size: ${props => props.theme.fontSizes[2]};
+  }
+`;
 
 const Loading = () => (
-  <div className="black-80 sans-serif measure">
-    <FontAwesomeIcon className="dib mr3" icon={faSpinner} spin />
-    <span className="f4">Loading...</span>
-  </div>
+  <Styles>
+    <FontAwesomeIcon icon={faSpinner} spin />
+    <p>Loading...</p>
+  </Styles>
 );
 
 export default Loading;

@@ -1,5 +1,64 @@
 import React from 'react';
-import cx from 'classnames';
+import styled from 'styled-components';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faExclamationTriangle } from '@fortawesome/pro-light-svg-icons';
+
+const StyledSmartInput = styled.div`
+  border: 1px solid black;
+  display: grid;
+  grid-template-columns: 30px 1fr 30px;
+  border-color: ${props =>
+    props.hasError ? props.theme.colors.danger : props.theme.colors.black};
+`;
+
+const StyledInput = styled.input`
+  border: 0px;
+  width: 100%;
+  grid-column: 1/-1;
+  grid-row: 1;
+  padding: ${props => props.theme.spacing[3]};
+  padding-left: ${props => (props.hasIcon ? '40px' : '10px')};
+  padding-right: ${props => (props.hasError ? '40px' : '10px')};
+`;
+
+const StyledLabel = styled.label`
+  grid-column: 1 / -1;
+  /* font-size: ${props => props.theme.fontSizes[2]}; */
+  font-weight: ${props => props.theme.fontWeight[2]};
+`;
+
+const StyledContainer = styled.div`
+  display: block;
+`;
+
+const FancyIcon = styled.span`
+  display: inline;
+  grid-column: 1/2;
+  grid-row: 1;
+  align-self: center;
+  justify-self: center;
+  z-index: 999;
+  color: #ccc;
+`;
+
+const ErrorIcon = styled.span`
+  grid-column: 3;
+  grid-row: 1;
+  align-self: center;
+  justify-self: center;
+  z-index: 999;
+  color: ${props => props.theme.colors.danger};
+`;
+
+const StyledHelperText = styled.p`
+  /* padding: ${props => props.theme.spacing[0]}; */
+  font-size: ${props => props.theme.fontSizes[0]};
+`;
+
+const StyledErrorText = styled.p`
+  font-size: ${props => props.theme.fontSizes[0]};
+  color: ${props => props.theme.colors.danger};
+`;
 
 const TextInput = ({
   type,
@@ -9,35 +68,35 @@ const TextInput = ({
   value,
   onChange,
   help,
+  icon,
   ...props
 }) => (
-  <div className="measure sans-serif black-80">
-    <label htmlFor={id} className="">
-      <span className="f6 b db mb2">{label}</span>
-
-      <input
+  // console.log(error);
+  <StyledContainer>
+    <StyledLabel htmlFor={id} className="">
+      {label}
+    </StyledLabel>
+    <StyledSmartInput hasError={!!error}>
+      {icon && <FancyIcon>{icon}</FancyIcon>}
+      <StyledInput
+        hasError={!!error}
+        hasIcon={!!icon}
         id={id}
-        className={cx('input-reset ba pa2 mb2 db w-100', {
-          'b--black-20': !error,
-          'b--red': !!error,
-        })}
         type={type}
         value={value}
         onChange={onChange}
+        error={error}
         {...props}
       />
-      {help && (
-        <small id={id} className="f6 db mb2">
-          {help}
-        </small>
-      )}
       {error && (
-        <small id={id} className="f6 red db mb2">
-          {error}
-        </small>
+        <ErrorIcon>
+          <FontAwesomeIcon icon={faExclamationTriangle} />
+        </ErrorIcon>
       )}
-    </label>
-  </div>
+    </StyledSmartInput>
+    {help && <StyledHelperText>{help}</StyledHelperText>}
+    {error && <StyledErrorText>{error}</StyledErrorText>}
+  </StyledContainer>
 );
 
 export default TextInput;

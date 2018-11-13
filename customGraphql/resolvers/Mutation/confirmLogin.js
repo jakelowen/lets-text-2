@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const _ = require('lodash');
 
 const confirmLogin = async (parent, args, ctx) => {
   /*  Response target
@@ -16,7 +17,7 @@ const confirmLogin = async (parent, args, ctx) => {
     .andWhere('login_token_expiry', '>', 'now()')
     .first();
 
-  console.log(user, args);
+  // console.log(user, args);
 
   if (!user) {
     console.log('!!!!! NO USER');
@@ -37,20 +38,32 @@ const confirmLogin = async (parent, args, ctx) => {
     .where({ email: user.email })
     .returning('*');
 
+  // get permissions
+  const permissions = await ctx
+    .db('permission')
+    .where({ user_id: updatedUser.id })
+    .select('role');
+
+  const allowedRoles = permissions.map(permission => permission.role);
+  allowedRoles.push('anonymous');
+
+  // figure out default role
+  const defaultRole = _.includes(allowedRoles, 'user') ? 'user' : 'anonymous';
+
   // 4. Generate JWT
   const token = jwt.sign(
     {
       userId: updatedUser.id,
       'https://hasura.io/jwt/claims': {
-        'x-hasura-allowed-roles': ['user'],
-        'x-hasura-default-role': 'user',
+        'x-hasura-allowed-roles': allowedRoles,
+        'x-hasura-default-role': defaultRole,
         'x-hasura-user-id': updatedUser.id,
-        // 'x-hasura-org-id': '123',
-        // 'x-hasura-custom': 'custom-value',
       },
     },
     process.env.APP_SECRET
   );
+
+  console.log('JWT', token);
 
   // 5. Set the JWT cookie
   ctx.response.cookie('token', token, {

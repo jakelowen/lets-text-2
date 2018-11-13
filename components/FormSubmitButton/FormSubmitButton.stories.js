@@ -15,4 +15,9 @@ storiesOf('FormSubmitButton', module)
     <div style={{ width: '80%', margin: '10px auto 10px auto' }}>
       <FormSubmitButton isSubmitting value="A button!" />
     </div>
+  ))
+  .add('Disabled', () => (
+    <div style={{ width: '80%', margin: '10px auto 10px auto' }}>
+      <FormSubmitButton disabled value="A button!" />
+    </div>
   ));

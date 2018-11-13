@@ -2,22 +2,54 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/pro-light-svg-icons';
+import styled from 'styled-components';
+
+const Styled = styled.div`
+  display: grid;
+  grid-gap: 20px;
+  grid-template-columns: minmax(auto, 1fr) 1fr minmax(auto, 1fr);
+
+  h1 {
+    font-size: ${props => props.theme.fontSizes[5]};
+    font-weight: ${props => props.theme.fontWeight[0]};
+    line-height: ${props => props.theme.lineHeight[1]};
+    grid-column-start: 2;
+  }
+
+  p {
+    font-size: ${props => props.theme.fontSizes[1]};
+    grid-column-start: 2;
+  }
+
+  svg {
+    margin-right: ${props => props.theme.spacing[2]};
+  }
+`;
+
+const StyledSecurityCode = styled.p`
+  background-color: ${props => props.theme.colors.black};
+  color: ${props => props.theme.colors.white};
+  display: inline-block;
+  padding: ${props => props.theme.spacing[3]};
+`;
 
 const AwaitingConfirmation = ({ email, securityCode }) => (
-  <div className="measure center black-80 sans-serif">
-    <h1 className="f2">Awaiting Verification</h1>
-    <p className="f5">{`We have sent an email to ${email}.`}</p>
-    <p className="f5">
+  <Styled>
+    <h1>Awaiting Verification</h1>
+    <p>
+      We have sent an email to <strong>{email}</strong>
+    </p>
+    <p>
       Please login to your email and verify the provided security code matches
       the following text:
     </p>
-    <p className="f5">Your security code:</p>
-    <p className="f3 pa4 bg-black-80 white tc">{securityCode}</p>
-    <p className="f5 tc">
-      <FontAwesomeIcon className="mr3" icon={faSpinner} spin />
+    <p>Your security code:</p>
+    <StyledSecurityCode>{securityCode}</StyledSecurityCode>
+    <p>
+      <FontAwesomeIcon icon={faSpinner} spin />
       Waiting for confirmation...
     </p>
-  </div>
+  </Styled>
 );
 
 AwaitingConfirmation.propTypes = {

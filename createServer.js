@@ -1,4 +1,6 @@
-const { GraphQLServer } = require('graphql-yoga');
+// const { GraphQLServer } = require('graphql-yoga');
+// const { ApolloServer } = require('apollo-server');
+const { ApolloServer } = require('apollo-server-express');
 const { mergeSchemas, makeExecutableSchema } = require('graphql-tools');
 const typeDefs = require('./customGraphql/typeDefs');
 const Mutation = require('./customGraphql/resolvers/Mutation');
@@ -40,12 +42,34 @@ async function createServer() {
     schemas: [executableHasuraSchema, executableCustomSchema],
   });
 
-  return new GraphQLServer({
+  // intialize db
+  const db = knex();
+
+  return new ApolloServer({
     schema: finalSchema,
     resolverValidationOptions: {
       requireResolversForResolveType: false,
     },
-    context: req => ({ ...req, db: knex() }),
+    context: req =>
+      // console.log('!!!!!!! req', req.connection && req);
+      ({ ...req, db }),
+    subscriptions: {
+      onConnect: (connectionParams, webSocket) => {
+        const token =
+          webSocket &&
+          webSocket.upgradeReq &&
+          webSocket.upgradeReq.headers &&
+          webSocket.upgradeReq.headers.cookie &&
+          webSocket.upgradeReq.headers.cookie.replace('token=', '');
+        if (token) {
+          // console.log(`TOKEN IS ${token}`);
+          return {
+            Authorization: `Bearer ${token}`,
+          };
+        }
+        throw new Error('No authorization to connect via web socket connetion');
+      },
+    },
   });
 }
 

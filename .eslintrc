@@ -16,6 +16,11 @@
     "jest": true
   },
   "rules": {
+    "jsx-a11y/label-has-for": [ 2, {
+      "required": {
+          "every": [ "id" ]
+      }
+    }],
     "no-debugger": 0,
     "no-alert": 0,
     "no-unused-vars": [

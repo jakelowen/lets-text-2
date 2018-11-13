@@ -53,7 +53,7 @@ const requestLogin = async (parent, args, ctx) => {
     to: user.email,
     subject: subject(),
     html: html(url, securityCode),
-    txt: text(url, securityCode),
+    text: text(url, securityCode),
   };
   await transport.sendMail(messageData);
 

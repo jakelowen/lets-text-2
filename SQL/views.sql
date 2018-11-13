@@ -59,3 +59,42 @@ CREATE VIEW session_response_performance AS (
         group by 1,2,3
     ) pre
 );
+
+
+-- Current shift assignments
+CREATE VIEW current_shift_assignments AS (
+	SELECT 
+		user_id
+		, rating 
+	FROM shift_assignment 
+	WHERE shift_id IN (
+		SELECT id from shift ORDER BY timestamp DESC LIMIT 1
+	)
+);
+
+-- INBOX view
+CREATE VIEW inbox AS (
+    SELECT 
+        performance.*
+        ,message.body 
+    FROM (
+        SELECT
+            patron_id
+--            , ceil(date_part('epoch'::text, now() - min(effective_timestamp)) / 60::double precision / 15::double precision) AS response_time_rating
+			, min(effective_timestamp) as oldest_message_in_thread
+            , count(*)
+        FROM message
+        WHERE session_timestamp IS NULL
+        GROUP BY 1
+        ORDER BY 2 DESC
+    ) performance
+    LEFT JOIN (
+        SELECT DISTINCT ON(patron_id)
+            patron_id
+            , body
+            , effective_timestamp
+        FROM message
+        GROUP BY 1, 2, 3
+        ORDER BY patron_id, effective_timestamp DESC
+    ) message USING(patron_id)
+);
