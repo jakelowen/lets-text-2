@@ -55,6 +55,7 @@
   },
   "devDependencies": {
     "@fortawesome/fontawesome-pro": "^5.5.0",
+    "@fortawesome/fontawesome-svg-core": "^1.2.8",
     "@storybook/addon-notes": "^3.4.11",
     "@storybook/react": "^3.4.11",
     "apollo-storybook-react": "^0.1.8",
