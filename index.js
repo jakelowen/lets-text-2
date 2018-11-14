@@ -13,7 +13,7 @@ const app = next({ dev });
 const handle = app.getRequestHandler();
 
 // const dev = process.env.NODE_ENV !== 'production';
-const port = process.env.PORT || 4000;
+const port = process.env.PORT || 8080;
 
 app.prepare().then(async () => {
   const expressServer = express();

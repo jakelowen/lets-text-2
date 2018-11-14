@@ -53,13 +53,15 @@ async function createServer() {
     resolverValidationOptions: {
       requireResolversForResolveType: false,
     },
-    context: async ({ req, connection }) => {
+    context: async ({ req, res, connection }) => {
       if (connection) {
         return connection.context;
       }
-      return { db, userId: req.userId || null };
+      return { db, res, userId: req.userId || null };
     },
     subscriptions: {
+      // https://stackoverflow.com/questions/51023178/stitching-secure-subscriptions-using-makeremoteexecutableschema
+      // https://gist.github.com/josephktcheung/cd1b65b321736a520ae9d822ae5a951b
       onConnect: (connectionParams, webSocket) => {
         const token =
           webSocket &&
