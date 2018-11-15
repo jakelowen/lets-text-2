@@ -9,6 +9,7 @@ const Mutation = require('./customGraphql/resolvers/Mutation');
 const Query = require('./customGraphql/resolvers/Query');
 const { getRemoteSchema, makeHttpAndWsLink } = require('./utils/stitching');
 const knex = require('./knex');
+const makeAnonToken = require('./utils/makeAnonRoleToken');
 // const { WebSocketLink } = require('apollo-link-ws');
 
 async function createServer() {
@@ -71,25 +72,25 @@ async function createServer() {
           webSocket.upgradeReq.headers.cookie &&
           webSocket.upgradeReq.headers.cookie.replace('token=', '');
 
-        if (token) {
-          // console.log(`TOKEN IST ${token}`);
-          const secureWebsocketConnection = new SubscriptionClient(
-            HASURA_GRAPHQL_API_URL,
-            {
-              connectionParams: {
-                headers: {
-                  authorization: `Bearer ${token}`,
-                },
+        // if (token) {
+        // console.log(`TOKEN IST ${token}`);
+        const secureWebsocketConnection = new SubscriptionClient(
+          HASURA_GRAPHQL_API_URL,
+          {
+            connectionParams: {
+              headers: {
+                authorization: `Bearer ${token || makeAnonToken()}`,
               },
-              reconnect: true,
             },
-            ws
-          );
-          return {
-            secureWebsocketConnection,
-          };
-        }
-        throw new Error('No authorization to connect via web socket connetion');
+            reconnect: true,
+          },
+          ws
+        );
+        return {
+          secureWebsocketConnection,
+        };
+        // }
+        // throw new Error('No authorization to connect via web socket connetion');
       },
       onDisconnect: async (websocket, context) => {
         const params = await context.initPromise;

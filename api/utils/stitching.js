@@ -8,7 +8,8 @@ const fetch = require('node-fetch');
 const { split } = require('apollo-link');
 const { getMainDefinition } = require('apollo-utilities');
 const { setContext } = require('apollo-link-context');
-const jwt = require('jsonwebtoken');
+// const jwt = require('jsonwebtoken');
+const makeAnonToken = require('./makeAnonRoleToken');
 
 const makeHttpAndWsLink = (uri, headers) => {
   const httpLink = new HttpLink({
@@ -36,16 +37,7 @@ const makeHttpAndWsLink = (uri, headers) => {
     }
 
     // generate anon token
-    const anonToken = jwt.sign(
-      {
-        userId: null,
-        'https://hasura.io/jwt/claims': {
-          'x-hasura-allowed-roles': ['anonymous'],
-          'x-hasura-default-role': 'anonymous',
-        },
-      },
-      process.env.APP_SECRET
-    );
+    const anonToken = makeAnonToken();
     return {
       headers: {
         authorization: `Bearer ${anonToken}`,
