@@ -75,13 +75,12 @@ app.prepare().then(async () => {
 
   httpServer.listen(port, err => {
     if (err) throw err;
-    const { GRAPHQL_PATH, DOMAIN } = process.env;
-    console.log(`🚀 Server Listening on http://${DOMAIN}:${port}`);
+    console.log(`🚀 Server Listening on http://localhost:${port}`);
     console.log(
-      `🚀 GRAPHQL ready at http://${DOMAIN}:${port}${gqlserver.graphqlPath}`
+      `🚀 GRAPHQL ready at http://localhost:${port}${gqlserver.graphqlPath}`
     );
     console.log(
-      `🚀 Subscriptions ready at ws://${DOMAIN}:${port}${
+      `🚀 Subscriptions ready at ws://localhost:${port}${
         gqlserver.subscriptionsPath
       }`
     );
