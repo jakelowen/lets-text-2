@@ -5,4 +5,3 @@ variables.env
 .next/
 yarn-error.log
 trashbin/
-.npmrc
