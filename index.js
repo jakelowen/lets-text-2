@@ -4,14 +4,16 @@ const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
 
 // require('dotenv').config({ path: 'variables.env' });
-require('dotenv');
+require('dotenv').config();
 const next = require('next');
 const express = require('express');
-const createGQLServer = require('./createServer');
+const createGQLServer = require('./api/createServer');
 
 const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
 const handle = app.getRequestHandler();
+
+const apiRoutes = require('./api/apiRoutes');
 
 // const dev = process.env.NODE_ENV !== 'production';
 const port = process.env.PORT || 8080;
@@ -47,6 +49,7 @@ app.prepare().then(async () => {
 
   const httpServer = createServer(expressServer);
   gqlserver.installSubscriptionHandlers(httpServer);
+  // console.log(gqlserver);
 
   // Not sure if I need this, but leaving in the stub.
   // 2. Create a middleware that populates the user on each request
@@ -61,6 +64,8 @@ app.prepare().then(async () => {
   //   next();
   // });
 
+  expressServer.use('/api', apiRoutes);
+
   expressServer.get('*', (req, res, next) => {
     if (req.url === '/graphql') {
       return next();
@@ -70,12 +75,13 @@ app.prepare().then(async () => {
 
   httpServer.listen(port, err => {
     if (err) throw err;
-    console.log(`Listening on http://localhost:${port}`);
+    const { GRAPHQL_PATH, DOMAIN } = process.env;
+    console.log(`🚀 Server Listening on http://${DOMAIN}:${port}`);
     console.log(
-      `🚀 Server ready at http://localhost:${port}${gqlserver.graphqlPath}`
+      `🚀 GRAPHQL ready at http://${DOMAIN}:${port}${gqlserver.graphqlPath}`
     );
     console.log(
-      `🚀 Subscriptions ready at ws://localhost:${port}${
+      `🚀 Subscriptions ready at ws://${DOMAIN}:${port}${
         gqlserver.subscriptionsPath
       }`
     );

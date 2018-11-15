@@ -63,6 +63,7 @@ async function createServer() {
       // https://stackoverflow.com/questions/51023178/stitching-secure-subscriptions-using-makeremoteexecutableschema
       // https://gist.github.com/josephktcheung/cd1b65b321736a520ae9d822ae5a951b
       onConnect: (connectionParams, webSocket) => {
+        // console.log(webSocket);
         const token =
           webSocket &&
           webSocket.upgradeReq &&

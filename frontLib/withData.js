@@ -1,31 +1,20 @@
 import withApollo from 'next-with-apollo';
-// import ApolloClient from 'apollo-boost';
 import { ApolloClient } from 'apollo-client';
 import { WebSocketLink } from 'apollo-link-ws';
 import { split } from 'apollo-link';
 import { HttpLink } from 'apollo-link-http';
 import { getMainDefinition } from 'apollo-utilities';
 import { InMemoryCache } from 'apollo-cache-inmemory';
-// import ws from 'ws';
 
-// import { endpoint, prodEndpoint } from '../config';
+// Create an http link: - uses defaults
+const httpLink = new HttpLink();
 
-// Create an http link:
-const httpLink = new HttpLink({
-  uri: 'http://localhost:4000/graphql',
-});
-
+// subscriptions uses constructed relative link
 const wsLink = process.browser
   ? new WebSocketLink({
-      uri: `ws://localhost:4000/graphql`,
+      uri: `ws://${window.location.host}/graphql`, // `ws://localhost:4000/graphql`, // replace with ENV
       options: {
-        // reconnect: true,
-        // connectionParams: {
-        //   headers: {
-        //     Authorization:
-        //       'Bearer BUTTSeyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI4MjViOWRhMi1kNjdmLTQ5ZDItOGU3OS02YTlmZDViM2ViOTYiLCJodHRwczovL2hhc3VyYS5pby9qd3QvY2xhaW1zIjp7IngtaGFzdXJhLWFsbG93ZWQtcm9sZXMiOlsiYWRtaW4iLCJ1c2VyIiwiYW5vbnltb3VzIl0sIngtaGFzdXJhLWRlZmF1bHQtcm9sZSI6InVzZXIiLCJ4LWhhc3VyYS11c2VyLWlkIjoiODI1YjlkYTItZDY3Zi00OWQyLThlNzktNmE5ZmQ1YjNlYjk2In0sImlhdCI6MTU0MTkwMTY2NX0.PTpqjlXKVxfyxrgmz6EU1jyKKDCMjq07qzCF7a9AbZo',
-        //   },
-        // },
+        reconnect: true,
       },
     })
   : null;
@@ -51,10 +40,6 @@ function createClient({ headers }) {
   return new ApolloClient({
     link,
     cache: new InMemoryCache(),
-    // uri:
-    //   process.env.NODE_ENV === 'development'
-    //     ? `${endpoint}/graphql`
-    //     : `${prodEndpoint}/graphql`,
     request: operation => {
       operation.setContext({
         fetchOptions: {
