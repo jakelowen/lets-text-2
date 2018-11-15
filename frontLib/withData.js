@@ -12,7 +12,9 @@ const httpLink = new HttpLink();
 // subscriptions uses constructed relative link
 const wsLink = process.browser
   ? new WebSocketLink({
-      uri: `ws://${window.location.host}/graphql`, // `ws://localhost:4000/graphql`, // replace with ENV
+      uri: `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${
+        window.location.host
+      }/graphql`, // `ws://localhost:4000/graphql`, // replace with ENV
       options: {
         reconnect: true,
       },
