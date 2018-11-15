@@ -3,7 +3,8 @@ const cookieParser = require('cookie-parser');
 
 const jwt = require('jsonwebtoken');
 
-require('dotenv').config({ path: 'variables.env' });
+// require('dotenv').config({ path: 'variables.env' });
+require('dotenv');
 const next = require('next');
 const express = require('express');
 const createGQLServer = require('./createServer');
